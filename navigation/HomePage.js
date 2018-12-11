@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, TextInput, View, StyleSheet, ScrollView, Text, Image, FlatList, List } from 'react-native';
+import { Platform, TextInput, View, StyleSheet, ScrollView, Text, Image, FlatList, List, Dimensions } from 'react-native';
 import { Card, ListItem, Button, Icon } from 'react-native-elements'
 import { Constants, Location, Permissions } from 'expo';
 
@@ -17,7 +17,7 @@ export default class HomePage extends React.Component {
     super(props);
     this.state = {
       data: [],
-      base_url: "https://api.jsonbin.io/b/5c0c08759b34c6328cc4093b/1",
+      base_url: "https://api.jsonbin.io/b/5c0c08759b34c6328cc4093b/3",
       //base_url: "127.0.0.1:8000/blogpost"
       location: null,
       errorMessage: null,
@@ -48,7 +48,7 @@ export default class HomePage extends React.Component {
   };
 
   fetchDataFromApi = () => {
-    const url = "https://api.jsonbin.io/b/5c0c08759b34c6328cc4093b/1";
+    const url = "https://api.jsonbin.io/b/5c0c08759b34c6328cc4093b/3";
     // const url = "127.0.0.1:8000/blogpost"
 
     fetch(url)
@@ -69,8 +69,10 @@ export default class HomePage extends React.Component {
       data,
       location,
     } = this.state;
+    const readerLocation = navigation.getParam('userLocation', 'NO_LOCATION');
+    console.log('readerLocation at HomePage: ' + readerLocation);
     if(item !== null) {
-      navigation.navigate('Info', item);
+      navigation.navigate('Info', {item, readerLocation: readerLocation});
     } else {
       Alert.alert('This post is unavailable.');
     }
@@ -87,22 +89,6 @@ export default class HomePage extends React.Component {
     const{
       navigation,
     } = this.props;
-    const categoryData = navigation.getParam('data', 'NO_CATEGORY');
-    
-    const id = navigation.getParam('id', 'NO_ID');
-    const name = navigation.getParam('name', 'NO_NAME');
-    const parent = navigation.getParam('parent', 'NO_PARENT');
-    // console.log('haha wow ok wow ok');
-    // console.log(id);
-    // console.log(name);
-    // console.log(parent);
-
-    // console.log('category: ' + item.category);
-    // console.log('author: ' + item.author);
-    // console.log('isArchive: ' + item.isArchive);
-    // console.log('date_posted: ' +item.date_posted);
-    // console.log('id: ' + item.id);
-    // console.log('title: ' + item.title);
     /*
     render the item into the list if:
     1. message category is part of user's subscription
@@ -111,61 +97,62 @@ export default class HomePage extends React.Component {
     4. within reader's location
     */
 
-    // we currently don't have publisher current location
-    let pseudoLocation = 'MD';
-    let isValid = 0; //0 = true, 1 = false;
-    if(item.isArchive == true){
-      isValid = 1;
-      return null;
-    }
-    if(pseudoLocation !== item.location){
-      isValid = 1;
-    }
-    // console.log('hahahahahhahahahaha');
-    console.log(item.category);
-    console.log(id);
-    if(item.category == null || item.category !== id){
-    //   console.log('here');
-    //   console.log(item.category);
-    // console.log(id);
-      isValid = 1;
-    console.log('pass here1');
-    }
-
-    // if(isValid == 0){
-    if(true){
-      console.log(' i wanna go see ');
-      return (
-        <Card
-          title={item.title}>
-          <Text style={{marginBottom: 10}}
-            numberOfLines={1}>
-            {item.content}
-          </Text>
-          <Button
-            onPress={() => this.moreInfo(item)}
-            title='READ MORE'
-            buttonStyle={{
-              backgroundColor: "rgba(92, 99,216, 1)",
-              width: 200,
-              height: 45,
-              borderColor: "transparent",
-              borderWidth: 0,
-              borderRadius: 5
-            }}
-            containerStyle={{ 
-              alignItems: 'center',
-            }}
-          />
-        </Card>
-      );
-    }
+    return (
+      <Card
+        containerStyle={{width: Dimensions.get('window').width - 20}}
+        title={item.title}>
+        <Text style={{marginBottom: 10}}
+          numberOfLines={1}>
+          {item.content}
+        </Text>
+        <Button
+          onPress={() => this.moreInfo(item)}
+          title='READ MORE'
+          buttonStyle={{
+            backgroundColor: "rgba(92, 99,216, 1)",
+            width: 200,
+            height: 45,
+            borderColor: "transparent",
+            borderWidth: 0,
+            borderRadius: 5
+          }}
+          containerStyle={{ 
+            alignItems: 'center',
+          }}
+        />
+      </Card>
+    );
     return null;
+  }
+
+  categoryFiltering(subscribedList, messageList){
+    const{
+      navigation,
+    } = this.props;
+    const userLocation = navigation.getParam('userLocation', 'NO_LOCATION');
+    // traverse messageList and determine if subscribedList 
+    newJson = [];
+    for(var i = 0; i < messageList.length; ++i){
+      for(var j = 0; j < subscribedList.length; ++j){
+        var message = messageList[i];
+        var subscription = subscribedList[j];
+        if(subscription.id == message.category){
+          if(message.isArchive == false){
+            if(message.location == userLocation){
+              newJson.push(message);
+            }
+          }
+        }
+      }
+    }
+    return newJson;
   }
 
   render() {
     const { navigation } = this.props;
     const { data } = this.state;
+
+    const subscribedList = navigation.getParam('subscribedList', 'NO_LIST');
 
     //Retrieving Location
     let readerLocation = 'Waiting..';
@@ -175,6 +162,8 @@ export default class HomePage extends React.Component {
       readerLocation = JSON.stringify(this.state.location);
     }
     console.log(readerLocation);
+
+    const subscribedItems = this.categoryFiltering(subscribedList, data);
     return (
       <ScrollView>
         <View style={styles.container}>
@@ -183,8 +172,8 @@ export default class HomePage extends React.Component {
           </Text>
           <FlatList
             keyExtractor={item => item.id.toString()}
-            data={data}
-            renderItem={this.onRenderItem}
+            data={subscribedItems}
+            renderItem={this.onRenderItem} 
             removeClippedSubviews={false}
           />
           <Button

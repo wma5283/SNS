@@ -7,6 +7,7 @@ import HomePage from './HomePage';
 import CategorySelector from './CategorySelector';
 import InfoPage from './Info';
 import LocationPage from './LocationPage';
+import ProfilePage from './ProfilePage';
 
 const RootStack = createStackNavigator({
     Login: {
@@ -23,6 +24,9 @@ const RootStack = createStackNavigator({
     },
     Location: {
       screen: LocationPage
+    },
+    Profile: {
+      screen: ProfilePage
     }
   });
 

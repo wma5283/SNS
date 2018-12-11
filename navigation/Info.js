@@ -13,38 +13,37 @@ export default class InfoPage extends React.Component {
       headerTintColor: 'white',
     };
   };
-  constructor(props){
-  	super(props);
-  }
-
   render() {
   	const{
   	  navigation,
   	} = this.props;
-
-  	const title = navigation.getParam('title', 'NO_TITLE');
-  	const content = navigation.getParam('content', 'NO_CONTENT');
-  	const category = navigation.getParam('category', 'NO_CATEGORY');
-  	const author = navigation.getParam('author', 'NO_AUTHOR');
-  	const date = navigation.getParam('date', 'NO DATE');
-  	const isArchive = navigation.getParam('isArchive', 'ARCHIVE_UNKNOWN');
-  	const location = navigation.getParam('location', 'NO_LOCATION');
-  	const image = navigation.getParam('image', 'NO_IMAGE');
-  	const id = navigation.getParam('id', 'NO_ID');
+  	// const title = navigation.getParam('title', 'NO_TITLE');
+  	// const content = navigation.getParam('content', 'NO_CONTENT');
+  	// const category = navigation.getParam('category', 'NO_CATEGORY');
+  	// const author = navigation.getParam('author', 'NO_AUTHOR');
+  	// const date = navigation.getParam('date', 'N/A');
+  	// const isArchive = navigation.getParam('isArchive', 'ARCHIVE_UNKNOWN');
+  	// const location = navigation.getParam('location', 'NO_LOCATION');
+  	// const image = navigation.getParam('image', 'NO_IMAGE');
+  	// const id = navigation.getParam('id', 'NO_ID');
+  	const item = navigation.getParam('item', 'NO_ITEM');
+  	const readerLocation = navigation.getParam('readerLocation', 'NO_LOCATION');
     return(
       <ScrollView>
 	  <View style={styles.container}>
 	 	<Text style={styles.title}>
-		  {title}
+		  {item.title}
 		</Text>
 	    <Card
 	      containerStyle={{width: Dimensions.get('window').width - 20}}
-          title={author.toString()}>
+        >
           <Text style={styles.content}>
-            {content}
+            {item.content}
           </Text>
           <Text>
-          	{date}
+          	{'Category: ' + item.category + "\n"}
+          	{'Location: ' + item.location + "\n"}
+          	{'Date: ' + item.date}
           </Text>
         </Card>
 		<Button
@@ -55,7 +54,7 @@ export default class InfoPage extends React.Component {
 			    color='black'
 			  />
 			}
-          onPress={() => navigation.navigate('Location')}
+          onPress={() => navigation.navigate('Location', {readerLocation: readerLocation})}
           title='LOCATION'
           buttonStyle={{
 		    backgroundColor: "rgba(92, 99,216, 1)",

@@ -21,7 +21,7 @@ export default class App extends Component {
       data: [],
       error: null,
       refreshing: false,
-      base_url: "https://api.jsonbin.io/b/5c0c0811c10055104caa1325",
+      base_url: "https://api.jsonbin.io/b/5c0c0811c10055104caa1325/2",
       // base_url: "127.0.0.1:8000/bloguser" 
       loading: false,
     };
@@ -32,7 +32,7 @@ export default class App extends Component {
   }
 
   fetchDataFromApi = () => {
-    const url = "https://api.jsonbin.io/b/5c0c0811c10055104caa1325";
+    const url = "https://api.jsonbin.io/b/5c0c0811c10055104caa1325/2";
     // base_url: "127.0.0.1:8000/bloguser" 
 
     this.setState({ loading : true });
